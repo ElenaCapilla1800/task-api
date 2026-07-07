@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+
+  # Servicio de base de datos MySQL
+  mysql:
+    image: mysql:8
+    container_name: mysql-taskapi
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: taskapi
+    ports:
+      - "3306:3306"
+    # El volumen persiste los datos aunque el contenedor se reinicie
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Servicio de la aplicación Spring Boot
+  app:
+    build: .
+    container_name: task-api
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskapi
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    # La app espera a que MySQL esté listo antes de arrancar
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
