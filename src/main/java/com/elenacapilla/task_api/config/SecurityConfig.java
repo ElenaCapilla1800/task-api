@@ -1,29 +1,38 @@
 package com.elenacapilla.task_api.config;
 
+import com.elenacapilla.task_api.security.JwtFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// @Configuration indica que esta clase contiene beans de configuración de Spring
 @Configuration
-// @EnableWebSecurity activa la configuración personalizada de Spring Security
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Este bean reemplaza la configuración por defecto de Spring Security
-    // Por ahora abrimos todo para poder probar los endpoints con Postman
-    // Más adelante aquí añadiremos JWT y restringiremos los accesos
+    @Autowired
+    private JwtFilter jwtFilter;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Desactivamos CSRF — necesario para APIs REST (no hay sesión de navegador)
                 .csrf(csrf -> csrf.disable())
-                // Permitimos todas las peticiones sin autenticación (temporal)
+                // Sin sesión — cada petición se autentica con su token JWT
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
+                        // Estos endpoints son públicos — no requieren token
+                        .requestMatchers("/api/users/register", "/api/auth/login").permitAll()
+                        // Todo lo demás requiere estar autenticado con JWT
+                        .anyRequest().authenticated()
+                )
+                // Añadimos nuestro filtro JWT antes del filtro de autenticación estándar
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
