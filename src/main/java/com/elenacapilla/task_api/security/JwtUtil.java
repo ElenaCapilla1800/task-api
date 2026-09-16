@@ -1,20 +1,26 @@
 package com.elenacapilla.task_api.security;
 
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
 
 // @Component hace que Spring gestione esta clase y podamos inyectarla con @Autowired
 @Component
 public class JwtUtil {
 
-    // Clave secreta para firmar los tokens — en producción iría en application.properties
-    // Debe tener mínimo 32 caracteres para el algoritmo HS256
-    private final String SECRET = "clave-secreta-task-api-elena-2026-segura";
+    // Clave secreta para firmar los tokens — se lee de application.properties (jwt.secret)
+    // o de la variable de entorno JWT_SECRET si está definida (así se hace en producción:
+    // nunca se sube el valor real al repositorio, solo el nombre de la variable).
+    // Debe tener mínimo 32 caracteres para el algoritmo HS256.
+    @Value("${jwt.secret}")
+    private String SECRET;
 
     // Tiempo de expiración del token: 24 horas en milisegundos
     private final long EXPIRATION = 1000 * 60 * 60 * 24;

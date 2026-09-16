@@ -12,6 +12,11 @@ API REST de gestión de tareas con autenticación de usuarios, construida con Sp
 
 ## Endpoints
 
+### Autenticación
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login — recibe `{ "email", "password" }`, devuelve `{ "token" }` (JWT) |
+
 ### Usuarios
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -25,6 +30,8 @@ API REST de gestión de tareas con autenticación de usuarios, construida con Sp
 | GET | `/api/users/{userId}/tasks` | Listar tareas del usuario |
 | PATCH | `/api/users/{userId}/tasks/{taskId}/toggle` | Marcar como completada |
 | DELETE | `/api/users/{userId}/tasks/{taskId}` | Eliminar tarea |
+
+Todas las rutas excepto `POST /api/auth/login` y `POST /api/users/register` requieren el header `Authorization: Bearer {token}` obtenido en el login.
 
 ## Cómo ejecutar el proyecto
 
@@ -51,6 +58,8 @@ API REST de gestión de tareas con autenticación de usuarios, construida con Sp
 ```
 
 La API estará disponible en `http://localhost:8082`
+
+> El secreto usado para firmar los JWT tiene un valor por defecto para desarrollo local (`jwt.secret` en `application.properties`). Para producción, define la variable de entorno `JWT_SECRET` con tu propio valor — nunca subas el valor real al repositorio.
 
 ## Estructura del proyecto
 
